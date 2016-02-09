@@ -1,0 +1,7 @@
+*.pyc
+arc/
+plots/
+pv/
+not_include/
+.tmp/
+*.txt
