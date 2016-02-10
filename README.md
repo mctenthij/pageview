@@ -16,4 +16,5 @@ Marijn ten Thij
 
 ### References
 [1] dumps.wikimedia.org/other/pagecounts-raw/
+
 [2] Modelling page-view dynamics on Wikipedia, ten Thij et al. (ECCS 2013), http://arxiv.org/abs/1212.5943
