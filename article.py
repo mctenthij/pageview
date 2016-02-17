@@ -136,7 +136,9 @@ class MainPage:
 	'''Main page information, needed for analysis'''
 	def __init__(self,lang,mp_title):
 		self.hourly = []
+		self.hourly_norm = []
 		self.weekly = []
+		self.weekly_norm = []
 		self.yearly_cycles = {}
 		self.monthly_cycles = {}
 		self.lang = lang
@@ -144,9 +146,15 @@ class MainPage:
 
 	def get_cycles(self):
 		hourly_totals = np.zeros(24).tolist()
+		hourly_norm_totals = np.zeros(24).tolist()
 		hourly_num = np.zeros(24).tolist()
 		weekly_totals = np.zeros(7*24).tolist()
+		weekly_norm_totals = np.zeros(7*24).tolist()
 		weekly_num = np.zeros(7*24).tolist()
+
+		hour_norm = np.zeros(24).tolist()
+		week_norm = np.zeros(7*24).tolist()
+
 		if os.path.exists(os.path.dirname(os.path.abspath(__file__))+"/pv/"+self.lang+"/"+self.mp_title+".txt"):
 			filename = "pv/"+self.lang+"/"+self.mp_title+".txt"
 			with open(filename) as doc:
@@ -156,15 +164,30 @@ class MainPage:
 					hour_views = int(cols[2])
 
 					dt = datetime.utcfromtimestamp(timestamp)
+					if dt.hour == 0 and sum(hour_norm) > 0:
+						temp = [x/sum(hour_norm) for x in hour_norm]
+						hour_norm = np.zeros(24).tolist()
+						for x in range(len(temp)):
+							hourly_norm_totals[x] += temp[x]
+
+						if dt.weekday() == 0:
+							temp_week = [x/sum(week_norm) for x in week_norm]
+							week_norm = np.zeros(7*24).tolist()
+							for x in range(len(temp_week)):
+								weekly_norm_totals[x] += temp_week[x]
 
 					hourly_totals[dt.hour] += hour_views
+					hour_norm[dt.hour] = hour_views
 					hourly_num[dt.hour] += 1
 					
 					weekly_totals[24*dt.weekday()+dt.hour] += hour_views
+					week_norm[24*dt.weekday()+dt.hour] += hour_views
 					weekly_num[24*dt.weekday()+dt.hour] += 1
 		
 		self.hourly = calc_average(hourly_totals,hourly_num)
+		self.hourly_norm = calc_average(hourly_norm_totals,hourly_num)
 		self.weekly = calc_average(weekly_totals,weekly_num)
+		self.weekly_norm = calc_average(weekly_norm_totals,weekly_num)
 
 	def get_yearly_cycles(self):
 		temp = {}
@@ -234,16 +257,24 @@ class TotalPage:
 	'''Total page views, needed for analysis'''
 	def __init__(self,lang):
 		self.hourly = []
+		self.hourly_norm = []
 		self.weekly = []
+		self.weekly_norm = []
 		self.yearly_cycles = {}
 		self.monthly_cycles = {}
 		self.lang = lang
 
 	def get_cycles(self):
 		hourly_totals = np.zeros(24).tolist()
+		hourly_norm_totals = np.zeros(24).tolist()
 		hourly_num = np.zeros(24).tolist()
 		weekly_totals = np.zeros(7*24).tolist()
+		weekly_norm_totals = np.zeros(7*24).tolist()
 		weekly_num = np.zeros(7*24).tolist()
+
+		hour_norm = np.zeros(24).tolist()
+		week_norm = np.zeros(7*24).tolist()
+
 		if os.path.exists(os.path.dirname(os.path.abspath(__file__))+"/pv/"+self.lang+"_total.txt"):
 			filename = "pv/"+self.lang+"_total.txt"
 			with open(filename) as doc:
@@ -253,15 +284,30 @@ class TotalPage:
 					hour_views = int(cols[2])
 
 					dt = datetime.utcfromtimestamp(timestamp)
+					if dt.hour == 0 and sum(hour_norm) > 0:
+						temp = [x/sum(hour_norm) for x in hour_norm]
+						hour_norm = np.zeros(24).tolist()
+						for x in range(len(temp)):
+							hourly_norm_totals[x] += temp[x]
+
+						if dt.weekday() == 0:
+							temp_week = [x/sum(week_norm) for x in week_norm]
+							week_norm = np.zeros(7*24).tolist()
+							for x in range(len(temp_week)):
+								weekly_norm_totals[x] += temp_week[x]
 
 					hourly_totals[dt.hour] += hour_views
+					hour_norm[dt.hour] = hour_views
 					hourly_num[dt.hour] += 1
 					
 					weekly_totals[24*dt.weekday()+dt.hour] += hour_views
+					week_norm[24*dt.weekday()+dt.hour] += hour_views
 					weekly_num[24*dt.weekday()+dt.hour] += 1
-					
-		self.hourly = [hourly_totals[x]/hourly_num[x] for x in range(len(hourly_totals))]
-		self.weekly = [weekly_totals[x]/weekly_num[x] for x in range(len(weekly_totals))]
+		
+		self.hourly = calc_average(hourly_totals,hourly_num)
+		self.hourly_norm = calc_average(hourly_norm_totals,hourly_num)
+		self.weekly = calc_average(weekly_totals,weekly_num)
+		self.weekly_norm = calc_average(weekly_norm_totals,weekly_num)
 
 	def get_yearly_cycles(self):
 		temp = {}

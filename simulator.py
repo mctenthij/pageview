@@ -57,6 +57,8 @@ class Simulator:
 		if c_values == [] and cycles == []:
 			self.run_analysis(self.mp.hourly,"MP_"+self.pattern.lang+"_opt_c"+extra)
 			self.run_analysis(self.tp.hourly,"TP_"+self.pattern.lang+"_opt_c"+extra)
+			self.run_analysis(self.mp.hourly_norm,"MP_norm_"+self.pattern.lang+"_opt_c"+extra)
+			self.run_analysis(self.tp.hourly_norm,"TP_norm_"+self.pattern.lang+"_opt_c"+extra)
 		elif c_values == []:
 			for cycle in cycles:
 				if type(cycle) == int:
@@ -69,6 +71,8 @@ class Simulator:
 			for cval in c_values:
 				self.run_analysis(self.mp.hourly,"MP_"+self.pattern.lang+"_c_"+str(cval).replace(".","-")+extra,cval)
 				self.run_analysis(self.tp.hourly,"TP_"+self.pattern.lang+"_c_"+str(cval).replace(".","-")+extra,cval)
+				self.run_analysis(self.mp.hourly_norm,"MP_norm_"+self.pattern.lang+"_c_"+str(cval).replace(".","-")+extra,cval)
+				self.run_analysis(self.tp.hourly_norm,"TP_norm_"+self.pattern.lang+"_c_"+str(cval).replace(".","-")+extra,cval)
 		else:
 			for cval in c_values:
 				for cycle in cycles:
