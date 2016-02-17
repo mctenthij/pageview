@@ -6,7 +6,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.cm as mplcm
 import matplotlib.colors as colors
-from numpy import median, percentile, zeros
+from numpy import median, percentile
 from scipy.stats import pearsonr
 
 from util import cumsum, get_ylims
@@ -144,28 +144,12 @@ def plot_art(art,pattern,plotfolder):
 		xticks[i] = str(i%24)+"h"
 		i+=6
 
-	max_length = len(art.views)
-	log_estimate = zeros(max_length).tolist()
-	
-	if art.pattern.has_gamma:
-		log_estimate[art.pattern.start:art.pattern.length*24] = [log(art.red_views[art.pattern.start])+log(art.beta)*x for x in range(art.pattern.length*24)]
-		log_estimate[art.pattern.length*24:max_length] = [log(art.red_views[art.pattern.start])+log(art.gamma)+log(art.beta)*(x-1) for x in range(art.pattern.length*24,max_length)]
-	else:
-		log_estimate[art.pattern.start:art.pattern.start+art.pattern.length*24] = [log(art.red_views[art.pattern.start])+log(art.beta)*x for x in range(art.pattern.length*24)]
-	
-	estimate = [exp(log_estimate[x]) for x in range(max_length)]
-
-	plotinfo = {"normal": {}, "estimate": {}, "model": {}}
+	plotinfo = {"normal": {}, "estimate": {}}
 	plotinfo["normal"]["x"] = range(len(art.views))
 	plotinfo["normal"]["y"] = art.views
 	plotinfo["normal"]["line_style"] = '-'
 	plotinfo["normal"]["line_color"] = 'blue'
-	plotinfo["normal"]["label"] = "Page-views"
-	plotinfo["model"]["x"] = range(len(art.views))
-	plotinfo["model"]["y"] = estimate
-	plotinfo["model"]["line_style"] = '--'
-	plotinfo["model"]["line_color"] = 'green'
-	plotinfo["model"]["label"] = "Model"
+	plotinfo["normal"]["label"] = "Page views"
 	plotinfo["estimate"]["x"] = range(len(art.views))
 	plotinfo["estimate"]["y"] = art.est_params
 	plotinfo["estimate"]["line_style"] = '--'
@@ -554,8 +538,6 @@ def plot_subplots(subplotinfo,axisinfo,x,y,common_legend=False):
 			# axarr[i,j].set_xlabel(axisinfo[key]["xlabel"],size=12)
 			axarr[i,j].set_ylabel(axisinfo[key]["ylabel"],size=12)
 			axarr[i,j].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-			if "scale" in axisinfo and axisinfo["scale"] == "log":
-				axarr[i,j].set_yscale('log')
 
 			k=0
 			while k < len(axisinfo[key]["xticks"]):
