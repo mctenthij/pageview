@@ -60,7 +60,7 @@ class Redistributor:
 		estimate = zeros(total_length).tolist()
 		
 		if self.pattern.has_gamma:
-			rang_p1 = range(24*self.pattern.length)
+			rang_p1 = range(self.pattern.start,24*self.pattern.length)
 			p1 = polyfit(rang_p1,[log(red_cycle[x]) for x in rang_p1],1)
 			rang_p2 = range(24*self.pattern.length,total_length)
 			p2 = polyfit(rang_p2,[log(red_cycle[x]) for x in rang_p2],1)
