@@ -529,6 +529,68 @@ def plot_histogram(data,bins,filename):
 	plt.close(fig)
 
 def plot_subplots(subplotinfo,axisinfo,x,y,common_legend=False):
+	if x == 1 or y == 1:
+		subplots_singlerow(subplotinfo,axisinfo,x,y,common_legend)
+	else:
+		subplots_multirow(subplotinfo,axisinfo,x,y,common_legend)
+	
+def subplots_singlerow(subplotinfo,axisinfo,x,y,common_legend):
+	fig, axarr = plt.subplots(x,y,figsize=(11.7, 8.3))
+	
+	keys = subplotinfo.keys()
+	plt.title(axisinfo["title"],size=28)
+	plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+	for i in range(max(x,y)):
+		key = keys[i]
+		labels = []
+		lines = []
+		try:
+			axarr[i].set_title(axisinfo[key]["title"],size=12)
+		except KeyError:
+			pass
+		try: 
+			axarr[i].set_xlabel(axisinfo[key]["xlabel"],size=12)
+		except KeyError:
+			pass
+		try:
+			axarr[i].set_ylabel(axisinfo[key]["ylabel"],size=12)
+		except KeyError:
+			pass
+		axarr[i].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+		if "scale" in axisinfo and axisinfo["scale"] == "log":
+			axarr[i].set_yscale('log')
+		else:
+			k=0
+			while k < len(axisinfo[key]["xticks"]):
+				if axisinfo[key]["ylim"]["start"] < 0:
+					axarr[i].fill_between(range(24+48*k,48*(k+1)), axisinfo[key]["ylim"]["start"], axisinfo[key]["ylim"]["end"], color='0.75')
+				else:
+					axarr[i].fill_between(range(24+48*k,48*(k+1)), 0, axisinfo[key]["ylim"]["end"], color='0.75')
+				k+=1
+
+		try:
+			line, = axarr[i].plot(subplotinfo[key]["x"], subplotinfo[key]["y"], subplotinfo[key]["line_style"], color=subplotinfo[key]["line_color"], label=subplotinfo[key]["label"], lw = 2)
+			lines.add(line)
+			labels.add(subplotinfo[key]["label"].split(',')[0])
+		except KeyError:
+			for entry in subplotinfo[key]:
+				line, = axarr[i].plot(subplotinfo[key][entry]["x"], subplotinfo[key][entry]["y"], subplotinfo[key][entry]["line_style"], color=subplotinfo[key][entry]["line_color"], label=subplotinfo[key][entry]["label"], lw = 2)
+				lines.append(line)
+				labels.append(subplotinfo[key][entry]["label"].split(',')[0])
+
+		axarr[i].set_xlim(axisinfo[key]["xlim"]["start"],axisinfo[key]["xlim"]["end"])
+		axarr[i].set_ylim(axisinfo[key]["ylim"]["start"],axisinfo[key]["ylim"]["end"])
+		axarr[i].set_xticks(range(len(axisinfo[key]["xticks"])))
+		axarr[i].set_xticklabels(axisinfo[key]["xticks"])
+		if not common_legend:
+			axarr[i].legend(loc=0, ncol=1,fontsize=12)
+	if common_legend:
+		fig.legend(lines,labels,loc='lower center', ncol=len(labels),fontsize=12)
+
+	plt.savefig("plots/"+axisinfo["filename"]+".pdf", dpi=600, facecolor='w', edgecolor='w',orientation='landscape', papertype='A4')
+	plt.close(fig)
+
+def subplots_multirow(subplotinfo,axisinfo,x,y,common_legend):
 	fig, axarr = plt.subplots(x,y,figsize=(11.7, 8.3))
 	
 	keys = subplotinfo.keys()
@@ -541,29 +603,28 @@ def plot_subplots(subplotinfo,axisinfo,x,y,common_legend=False):
 			labels = []
 			lines = []
 			try:
-				if axisinfo[key]["title"] == "en":
-					axarr[i,j].set_title("English",size=12)
-				elif axisinfo[key]["title"] == "nl":
-					axarr[i,j].set_title("Dutch",size=12)
-				elif axisinfo[key]["title"] == "de":
-					axarr[i,j].set_title("German",size=12)
-				elif axisinfo[key]["title"] == "es":
-					axarr[i,j].set_title("Spanish",size=12)
+				axarr[i,j].set_title(axisinfo[key]["title"],size=12)
 			except KeyError:
 				pass
-			# axarr[i,j].set_xlabel(axisinfo[key]["xlabel"],size=12)
-			axarr[i,j].set_ylabel(axisinfo[key]["ylabel"],size=12)
+			try: 
+				axarr[i,j].set_xlabel(axisinfo[key]["xlabel"],size=12)
+			except KeyError:
+				pass
+			try:
+				axarr[i,j].set_ylabel(axisinfo[key]["ylabel"],size=12)
+			except KeyError:
+				pass
 			axarr[i,j].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 			if "scale" in axisinfo and axisinfo["scale"] == "log":
 				axarr[i,j].set_yscale('log')
-
-			k=0
-			while k < len(axisinfo[key]["xticks"]):
-				if axisinfo[key]["ylim"]["start"] < 0:
-					axarr[i,j].fill_between(range(24+48*k,48*(k+1)), axisinfo[key]["ylim"]["start"], axisinfo[key]["ylim"]["end"], color='0.75')
-				else:
-					axarr[i,j].fill_between(range(24+48*k,48*(k+1)), 0, axisinfo[key]["ylim"]["end"], color='0.75')
-				k+=1
+			else:
+				k=0
+				while k < len(axisinfo[key]["xticks"]):
+					if axisinfo[key]["ylim"]["start"] < 0:
+						axarr[i,j].fill_between(range(24+48*k,48*(k+1)), axisinfo[key]["ylim"]["start"], axisinfo[key]["ylim"]["end"], color='0.75')
+					else:
+						axarr[i,j].fill_between(range(24+48*k,48*(k+1)), 0, axisinfo[key]["ylim"]["end"], color='0.75')
+					k+=1
 
 			try:
 				line, = axarr[i,j].plot(subplotinfo[key]["x"], subplotinfo[key]["y"], subplotinfo[key]["line_style"], color=subplotinfo[key]["line_color"], label=subplotinfo[key]["label"], lw = 2)
@@ -575,27 +636,14 @@ def plot_subplots(subplotinfo,axisinfo,x,y,common_legend=False):
 					lines.append(line)
 					labels.append(subplotinfo[key][entry]["label"].split(',')[0])
 
-			if axisinfo[key]["xlim"]["start"] < 0:
-				axarr[i,j].set_xlim(axisinfo[key]["xlim"]["start"],axisinfo[key]["xlim"]["end"])
-			else:
-				axarr[i,j].set_xlim(0,axisinfo[key]["xlim"]["end"])
-			
+			axarr[i,j].set_xlim(axisinfo[key]["xlim"]["start"],axisinfo[key]["xlim"]["end"])
 			axarr[i,j].set_ylim(axisinfo[key]["ylim"]["start"],axisinfo[key]["ylim"]["end"])
-			# if axisinfo[key]["ylim"]["start"] < 0:
-			# 	axarr[i,j].set_ylim(axisinfo[key]["ylim"]["start"],axisinfo[key]["ylim"]["end"])
-			# else:
-			# 	axarr[i,j].set_ylim(0,axisinfo[key]["ylim"]["end"])
-	
 			axarr[i,j].set_xticks(range(len(axisinfo[key]["xticks"])))
 			axarr[i,j].set_xticklabels(axisinfo[key]["xticks"])
 			if not common_legend:
 				axarr[i,j].legend(loc=0, ncol=1,fontsize=12)
 	if common_legend:
-		# box = ax.get_position()
-		# ax.set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
 		fig.legend(lines,labels,loc='lower center', ncol=len(labels),fontsize=12)
 
 	plt.savefig("plots/"+axisinfo["filename"]+".pdf", dpi=600, facecolor='w', edgecolor='w',orientation='landscape', papertype='A4')
-	# plt.draw()
-	# plt.show()
 	plt.close(fig)
