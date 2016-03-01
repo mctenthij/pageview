@@ -27,7 +27,7 @@ def plot_day(plotinfo,axisinfo,fileformat="pdf",ylims=(None,None)):
 	fig = plt.figure(figsize=(11.7, 8.3))
 	plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 	ax = fig.add_subplot(111)
-	ax.set_color_cycle([scalarMap.to_rgba(i) for i in range(len(plotinfo))])
+	ax.set_color_cycle([scalarMap.to_rgba(i) for i,entry in enumerate(plotinfo)])
 	# ax.set_xlabel(r'',size=28)
 	ax.set_ylabel(axisinfo["ylabel"],size=28)
 
@@ -68,7 +68,7 @@ def plot_week(plotinfo,axisinfo,fileformat="pdf",ylims=(None,None)):
 	fig = plt.figure(figsize=(11.7, 8.3))
 	plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 	ax = fig.add_subplot(111)
-	ax.set_color_cycle([scalarMap.to_rgba(i) for i in range(len(plotinfo))])
+	ax.set_color_cycle([scalarMap.to_rgba(i) for i,entry in enumerate(plotinfo)])
 	# ax.set_xlabel(r'',size=28)
 	ax.set_ylabel(axisinfo["ylabel"],size=28)
 	ax.fill_between(range(24), 0, axisinfo["ylim"]["end"], color='0.75')
@@ -119,7 +119,7 @@ def plot_pattern(plotinfo,axisinfo):
 	# else:
 	# 	ax.set_ylim(0,axisinfo["ylim"]["end"])
 	
-	plt.xticks(range(len(axisinfo["xticks"])), axisinfo["xticks"], rotation="horizontal", size=22)
+	plt.xticks(xrange(len(axisinfo["xticks"])), axisinfo["xticks"], rotation="horizontal", size=22)
 	plt.yticks(size=22)
 	ax.legend(loc=0, ncol=1)
 	plt.savefig("plots/"+axisinfo["filename"]+".pdf", dpi=600, facecolor='w', edgecolor='w',orientation='landscape', papertype='A4')
@@ -138,7 +138,7 @@ def plot_articles(average,articles,pattern,plotfolder,plot_all):
 				print art.title
 		
 def plot_art(art,pattern,plotfolder):
-	xticks = ["" for i in range(len(art.views)+1)]
+	xticks = ["" for _ in art.views]
 	i = 0
 	while i < len(art.views):
 		xticks[i] = str(i%24)+"h"
@@ -156,24 +156,24 @@ def plot_art(art,pattern,plotfolder):
 	estimate = [exp(log_estimate[x]) for x in range(max_length)]
 
 	plotinfo = {"normal": {}, "estimate": {}, "model": {}}
-	plotinfo["normal"]["x"] = range(len(art.views))
+	plotinfo["normal"]["x"] = xrange(len(art.views))
 	plotinfo["normal"]["y"] = art.views
 	plotinfo["normal"]["line_style"] = '-'
 	plotinfo["normal"]["line_color"] = 'blue'
 	plotinfo["normal"]["label"] = "Page-views"
-	plotinfo["model"]["x"] = range(len(art.views))
+	plotinfo["model"]["x"] = xrange(len(art.views))
 	plotinfo["model"]["y"] = estimate
 	plotinfo["model"]["line_style"] = '--'
 	plotinfo["model"]["line_color"] = 'green'
 	plotinfo["model"]["label"] = "Model"
-	plotinfo["estimate"]["x"] = range(len(art.views))
+	plotinfo["estimate"]["x"] = xrange(len(art.views))
 	plotinfo["estimate"]["y"] = art.est_params
 	plotinfo["estimate"]["line_style"] = '--'
 	plotinfo["estimate"]["line_color"] = 'red'
 	if pattern.has_gamma:
 		plotinfo["estimate"]["label"] = r"Estimated views ($\beta,\gamma$)"
 		plotinfo["gamma"] = {}
-		plotinfo["gamma"]["x"] = range(len(art.views))
+		plotinfo["gamma"]["x"] = xrange(len(art.views))
 		plotinfo["gamma"]["y"] = art.est_gamma_func
 		plotinfo["gamma"]["line_style"] = '--'
 		plotinfo["gamma"]["line_color"] = 'black'
@@ -181,36 +181,36 @@ def plot_art(art,pattern,plotfolder):
 	else:
 		plotinfo["estimate"]["label"] = r"Estimated views ($\beta$)"
 
-	axisinfo = {"filename": plotfolder+art.link_title, "ylabel": r'Number of page-views', "xticks": xticks, "title": "Hourly progression of "+art.title, "xlim": {"start": min(range(len(xticks))), "end": max(range(len(xticks)))}, "ylim": get_ylims(plotinfo)}
+	axisinfo = {"filename": plotfolder+art.link_title, "ylabel": r'Number of page-views', "xticks": xticks, "title": "Hourly progression of "+art.title, "xlim": {"start": 0, "end": len(xticks)}, "ylim": get_ylims(plotinfo)}
 	plot_pattern(plotinfo,axisinfo)
 
 	plotinfo = {"cumsum": {}}
 	plotinfo["cumsum"]
-	plotinfo["cumsum"]["x"] = range(len(art.views))
+	plotinfo["cumsum"]["x"] = xrange(len(art.views))
 	plotinfo["cumsum"]["y"] = cumsum(art.views)
 	plotinfo["cumsum"]["line_style"] = '-'
 	plotinfo["cumsum"]["line_color"] = 'blue'
 	plotinfo["cumsum"]["label"] = "Cumulative views"		
 
-	axisinfo = {"filename": plotfolder+"cum_"+art.link_title, "ylabel": r'Cumulative number of page-views', "xticks": xticks, "title": "Cumulative progression of "+art.title, "xlim": {"start": min(range(len(xticks))), "end": max(range(len(xticks)))}, "ylim": get_ylims(plotinfo)}
+	axisinfo = {"filename": plotfolder+"cum_"+art.link_title, "ylabel": r'Cumulative number of page-views', "xticks": xticks, "title": "Cumulative progression of "+art.title, "xlim": {"start": 0, "end": len(xticks)}, "ylim": get_ylims(plotinfo)}
 	plot_pattern(plotinfo,axisinfo)
 	
 	plotinfo = {"normalized": {}}
 	plotinfo["normalized"]
-	plotinfo["normalized"]["x"] = range(len(art.views))
+	plotinfo["normalized"]["x"] = xrange(len(art.views))
 	plotinfo["normalized"]["y"] = art.norm_views
 	plotinfo["normalized"]["line_style"] = '-'
 	plotinfo["normalized"]["line_color"] = 'blue'
 	plotinfo["normalized"]["label"] = "Normalized views"
 
-	axisinfo = {"filename": plotfolder+"norm_"+art.link_title, "ylabel": r'Number of page-views', "xticks": xticks, "title": "Hourly progression of "+art.title, "xlim": {"start": min(range(len(xticks))), "end": max(range(len(xticks)))}, "ylim": {"start": 0, "end": ceil(max(plotinfo["normalized"]["y"])*100)/100}}
+	axisinfo = {"filename": plotfolder+"norm_"+art.link_title, "ylabel": r'Number of page-views', "xticks": xticks, "title": "Hourly progression of "+art.title, "xlim": {"start": 0, "end": len(xticks)}, "ylim": {"start": 0, "end": ceil(max(plotinfo["normalized"]["y"])*100)/100}}
 	plot_pattern(plotinfo,axisinfo)
 
 def plot_errors(perc_errors,abs_errors,plotfolder,pattern):
 	absinfo = {}
 	percinfo = {}
 	a = len(list(median(abs_errors["params"],axis=0)))
-	xticks = ["" for i in range(a+1)]
+	xticks = ["" for _ in range(a)]
 	i = 0
 	while i < a:
 		xticks[i] = str(i%24)+"h"
@@ -273,7 +273,7 @@ def plot_errors(perc_errors,abs_errors,plotfolder,pattern):
 	
 def plot_cycles(cycles,prefix,yearly=False,monthly=False):
 	weekly_plotinfo = {"normal": {}}
-	weekly_plotinfo["normal"]["x"] = range(7*24)
+	weekly_plotinfo["normal"]["x"] = xrange(7*24)
 	weekly_plotinfo["normal"]["y"] = cycles.weekly
 	weekly_plotinfo["normal"]["line_style"] = '-'
 	weekly_plotinfo["normal"]["line_color"] = 'blue'
@@ -580,7 +580,7 @@ def subplots_singlerow(subplotinfo,axisinfo,x,y,common_legend):
 
 		axarr[i].set_xlim(axisinfo[key]["xlim"]["start"],axisinfo[key]["xlim"]["end"])
 		axarr[i].set_ylim(axisinfo[key]["ylim"]["start"],axisinfo[key]["ylim"]["end"])
-		axarr[i].set_xticks(range(len(axisinfo[key]["xticks"])))
+		axarr[i].set_xticks(xrange(len(axisinfo[key]["xticks"])))
 		axarr[i].set_xticklabels(axisinfo[key]["xticks"])
 		if not common_legend:
 			axarr[i].legend(loc=0, ncol=1,fontsize=12)
@@ -618,13 +618,16 @@ def subplots_multirow(subplotinfo,axisinfo,x,y,common_legend):
 			if "scale" in axisinfo and axisinfo["scale"] == "log":
 				axarr[i,j].set_yscale('log')
 			else:
-				k=0
-				while k < len(axisinfo[key]["xticks"]):
-					if axisinfo[key]["ylim"]["start"] < 0:
-						axarr[i,j].fill_between(range(24+48*k,48*(k+1)), axisinfo[key]["ylim"]["start"], axisinfo[key]["ylim"]["end"], color='0.75')
-					else:
-						axarr[i,j].fill_between(range(24+48*k,48*(k+1)), 0, axisinfo[key]["ylim"]["end"], color='0.75')
-					k+=1
+				try:
+					k=0
+					while k < len(axisinfo[key]["xticks"]):
+						if axisinfo[key]["ylim"]["start"] < 0:
+							axarr[i,j].fill_between(range(24+48*k,48*(k+1)), axisinfo[key]["ylim"]["start"], axisinfo[key]["ylim"]["end"], color='0.75')
+						else:
+							axarr[i,j].fill_between(range(24+48*k,48*(k+1)), 0, axisinfo[key]["ylim"]["end"], color='0.75')
+						k+=1
+				except KeyError:
+					pass
 
 			try:
 				line, = axarr[i,j].plot(subplotinfo[key]["x"], subplotinfo[key]["y"], subplotinfo[key]["line_style"], color=subplotinfo[key]["line_color"], label=subplotinfo[key]["label"], lw = 2)
@@ -635,11 +638,12 @@ def subplots_multirow(subplotinfo,axisinfo,x,y,common_legend):
 					line, = axarr[i,j].plot(subplotinfo[key][entry]["x"], subplotinfo[key][entry]["y"], subplotinfo[key][entry]["line_style"], color=subplotinfo[key][entry]["line_color"], label=subplotinfo[key][entry]["label"], lw = 2)
 					lines.append(line)
 					labels.append(subplotinfo[key][entry]["label"].split(',')[0])
-
+			
 			axarr[i,j].set_xlim(axisinfo[key]["xlim"]["start"],axisinfo[key]["xlim"]["end"])
 			axarr[i,j].set_ylim(axisinfo[key]["ylim"]["start"],axisinfo[key]["ylim"]["end"])
-			axarr[i,j].set_xticks(range(len(axisinfo[key]["xticks"])))
+			axarr[i,j].set_xticks(xrange(len(axisinfo[key]["xticks"])))
 			axarr[i,j].set_xticklabels(axisinfo[key]["xticks"])
+			
 			if not common_legend:
 				axarr[i,j].legend(loc=0, ncol=1,fontsize=12)
 	if common_legend:

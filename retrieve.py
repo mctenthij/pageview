@@ -14,16 +14,13 @@ class Retriever:
 		self.end = end
 		self.patterns = patterns
 
-
 	def addPattern(self,pattern):
 		self.patterns.append(pattern)
 
 	def getArticles(self):
-		for i in range(len(self.patterns)):
+		for i in xrange(len(self.patterns)):
 			self.patterns[i].getArchive(self.start,self.end)
-		# for pattern in self.patterns:
-		# 	pattern.getArchive(self.start,self.end)
-
+		
 	def run(self):
 		while self.current < self.end:
 			self.printCurrent()

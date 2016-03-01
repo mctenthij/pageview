@@ -48,7 +48,7 @@ class Article:
 			while len(self.views) < self.max_length:
 				self.views.append(0)
 
-			self.norm_views = [self.views[x]/sum(self.views) for x in range(len(self.views))]
+			self.norm_views = [x/sum(self.views) for x in self.views]
 
 	def set_views(self,article_views):
 		self.views = article_views
@@ -124,13 +124,14 @@ class Average(Article):
 		
 	def add_art(self,article):
 		self.num_added += 1
-		self.tot_views = [self.tot_views[x]+article.views[x] for x in range(len(article.views))]
-		self.tot_norm_views = [self.tot_norm_views[x]+article.views[x]/sum(article.views) for x in range(len(article.views))]
+		self.tot_views = [self.tot_views[x]+views for x,views in enumerate(article.views)]
+		self.tot_norm_views = [self.tot_norm_views[x]+views/sum(article.views) for x,views in enumerate(article.views)]
 
 	def calc_av_views(self):
 		if self.num_added != 0:
-			self.views = [self.tot_views[x]/self.num_added for x in range(len(self.tot_views))]
-			self.norm_views = [self.tot_norm_views[x]/self.num_added for x in range(len(self.tot_views))]
+			self.av_views = [views/self.num_added for views in self.tot_views]
+			self.norm_views = [views/self.num_added for views in self.tot_norm_views]
+			self.views = [views*sum(self.tot_views)/self.num_added for views in self.norm_views]
 
 class MainPage:
 	'''Main page information, needed for analysis'''
@@ -167,14 +168,14 @@ class MainPage:
 					if dt.hour == 0 and sum(hour_norm) > 0:
 						temp = [x/sum(hour_norm) for x in hour_norm]
 						hour_norm = np.zeros(24).tolist()
-						for x in range(len(temp)):
-							hourly_norm_totals[x] += temp[x]
+						for x,views in enumerate(temp):
+							hourly_norm_totals[x] += views
 
 						if dt.weekday() == 0:
 							temp_week = [x/sum(week_norm) for x in week_norm]
 							week_norm = np.zeros(7*24).tolist()
-							for x in range(len(temp_week)):
-								weekly_norm_totals[x] += temp_week[x]
+							for x,views in enumerate(temp_week):
+								weekly_norm_totals[x] += views
 
 					hourly_totals[dt.hour] += hour_views
 					hour_norm[dt.hour] = hour_views
@@ -287,14 +288,14 @@ class TotalPage:
 					if dt.hour == 0 and sum(hour_norm) > 0:
 						temp = [x/sum(hour_norm) for x in hour_norm]
 						hour_norm = np.zeros(24).tolist()
-						for x in range(len(temp)):
-							hourly_norm_totals[x] += temp[x]
+						for x,views in enumerate(temp):
+							hourly_norm_totals[x] += views
 
 						if dt.weekday() == 0:
 							temp_week = [x/sum(week_norm) for x in week_norm]
 							week_norm = np.zeros(7*24).tolist()
-							for x in range(len(temp_week)):
-								weekly_norm_totals[x] += temp_week[x]
+							for x,views in enumerate(temp_week):
+								weekly_norm_totals[x] += views
 
 					hourly_totals[dt.hour] += hour_views
 					hour_norm[dt.hour] = hour_views
@@ -335,8 +336,8 @@ class TotalPage:
 					
 		for year in temp:
 			self.yearly_cycles[year] = {}		
-			self.yearly_cycles[year]["hourly"] = [temp[year]["hourly_totals"][x]/temp[year]["hourly_num"][x] for x in range(len(temp[year]["hourly_totals"]))]
-			self.yearly_cycles[year]["weekly"] = [temp[year]["weekly_totals"][x]/temp[year]["weekly_num"][x] for x in range(len(temp[year]["weekly_totals"]))]
+			self.yearly_cycles[year]["hourly"] = [views/temp[year]["hourly_num"][x] for x,views in enumerate(temp[year]["hourly_totals"])]
+			self.yearly_cycles[year]["weekly"] = [views/temp[year]["weekly_num"][x] for x,views in enumerate(temp[year]["weekly_totals"])]
 
 	def get_monthly_cycles(self):
 		temp = {}
@@ -364,8 +365,8 @@ class TotalPage:
 					
 		for month in temp:
 			self.monthly_cycles[month] = {}		
-			self.monthly_cycles[month]["hourly"] = [temp[month]["hourly_totals"][x]/temp[month]["hourly_num"][x] for x in range(len(temp[month]["hourly_totals"]))]
-			self.monthly_cycles[month]["weekly"] = [temp[month]["weekly_totals"][x]/temp[month]["weekly_num"][x] for x in range(len(temp[month]["weekly_totals"]))]
+			self.monthly_cycles[month]["hourly"] = [views/temp[month]["hourly_num"][x] for x,views in enumerate(temp[month]["hourly_totals"])]
+			self.monthly_cycles[month]["weekly"] = [views/temp[month]["weekly_num"][x] for x,views in enumerate(temp[month]["weekly_totals"])]
 
 	def set_hourly(self,page_view_cycle):
 		self.hourly = page_view_cycle

@@ -32,7 +32,7 @@ def redistribute(xtick,views):
 	xdata = xtick_long+[len(views)]
 	ydata = [0]+cumsum(views)
 
-	ynew = interp1d(range(len(ydata)),ydata)(xdata)
+	ynew = interp1d(xrange(len(ydata)),ydata)(xdata)
 	red_data = np.diff(ynew)
 
 	return red_data
@@ -55,11 +55,11 @@ def cums(values):
 
 def calc_difference(a,b):
 	diff = 0
-	for x in range(len(a)):
-		if a[x] == 0:
-			diff += b[x] ** 2
+	for idx,value in enumerate(a):
+		if value == 0:
+			diff += b[idx] ** 2
 		else:
-			diff += (log(a[x])-b[x]) ** 2
+			diff += (log(value)-b[idx]) ** 2
 
 	return diff
 
@@ -67,12 +67,12 @@ def compare(original,estimate):
 	"""Calculate normalized and total error for estimate and original"""
 	perc_error = []
 	abs_error = []
-	for x in range(len(original)):
-		abs_error.append(estimate[x] - original[x])
+	for idx,value in enumerate(original):
+		abs_error.append(estimate[idx] - value)
 		try:
-			perc_error.append(float(estimate[x] - original[x]) / original[x])
+			perc_error.append((estimate[idx] - value) / value)
 		except ZeroDivisionError:
-			perc_error.append(float(estimate[x]))
+			perc_error.append((estimate[idx]))
 
 	return perc_error, abs_error
 
@@ -83,14 +83,14 @@ def get_ylims(plotinfo):
 		y_mins.append(min(plotinfo[entry]["y"]))
 		y_maxs.append(max(plotinfo[entry]["y"]))
 	
-	return {"start": floor(float(min(y_mins))/100)*100, "end": ceil(float(max(y_maxs))/100)*100}
+	return {"start": floor((min(y_mins))/100)*100, "end": ceil((max(y_maxs))/100)*100}
 
 def calc_average(totals,frequencies):
 	result = []
-	for x in range(len(totals)):
-		if frequencies[x] == 0:
+	for idx,value in enumerate(totals):
+		if frequencies[idx] == 0:
 			result.append(0)
 		else:
-			result.append(totals[x]/frequencies[x])
+			result.append(value/frequencies[idx])
 
 	return result
